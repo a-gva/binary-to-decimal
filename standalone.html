@@ -4,137 +4,325 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Binary to Decimal Converter</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  </head>
-  <body>
-    <div id="root"></div>
-
-    <script type="text/babel">
-      function App() {
-        const [rows, setRows] = React.useState(
-          Array(12)
-            .fill(null)
-            .map(() => Array(12).fill(false))
-        );
-
-        // Calculate decimal value for a single row
-        const calculateDecimal = (bits) => {
-          return bits.reduce((acc, bit, index) => {
-            return acc + (bit ? Math.pow(2, 11 - index) : 0);
-          }, 0);
-        };
-
-        // Toggle bit at specific position in specific row
-        const toggleBit = (rowIndex, bitIndex) => {
-          const newRows = [...rows];
-          newRows[rowIndex] = [...newRows[rowIndex]];
-          newRows[rowIndex][bitIndex] = !newRows[rowIndex][bitIndex];
-          setRows(newRows);
-        };
-
-        // Reset all rows to zeros
-        const resetAll = () => {
-          setRows(
-            Array(12)
-              .fill(null)
-              .map(() => Array(12).fill(false))
-          );
-        };
-
-        // Generate bit value descriptors (2^11 to 2^0)
-        const bitValues = Array(12)
-          .fill(0)
-          .map((_, i) => Math.pow(2, 11 - i));
-
-        return (
-          <div className='font-sans min-h-screen lg:mx-16 pb-10 gap-8 sm:p-8'>
-            <div className='flex flex-col md:flex-row gap-'>
-              <main className='flex md:flex-row flex-col gap-2 w-full md:w-2/3'>
-                <div className='flex flex-col gap-1 w-full md:w-3/4 p-3 rounded-lg'>
-                  <div className='flex justify-between items-center mb-2'>
-                    <h1 className='text-lg font-bold'>Binary to Decimal</h1>
-                    <button
-                      onClick={resetAll}
-                      className='bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs'
-                    >
-                      Reset All
-                    </button>
-                  </div>
-
-                  <div className='overflow-x-auto'>
-                    <table className='w-full table-fixed border-collapse'>
-                      <thead>
-                        <tr>
-                          <th className='w-8 text-xs'></th>
-                          {bitValues.map((value, index) => (
-                            <th
-                              key={index}
-                              className='w-8 text-center text-xs text-gray-500 p-1'
-                              style={{ width: '28px' }}
-                            >
-                              <div className='truncate'>{value}</div>
-                            </th>
-                          ))}
-                          <th className='w-16 text-xs'></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {rows.map((rowBits, rowIndex) => (
-                          <tr key={rowIndex} className='h-7'>
-                            <td className='text-center text-xs font-semibold'>
-                              {rowIndex + 1}
-                            </td>
-                            {rowBits.map((bit, bitIndex) => (
-                              <td
-                                key={bitIndex}
-                                className='p-[1px]'
-                                style={{ width: '28px' }}
-                              >
-                                <div
-                                  className={`border cursor-pointer flex items-center justify-center h-6 text-center text-xs ${bit ? 'bg-blue-500 text-white' : 'bg-gray-100 text-black'}`}
-                                  onClick={() => toggleBit(rowIndex, bitIndex)}
-                                >
-                                  {bit ? '1' : '0'}
-                                </div>
-                              </td>
-                            ))}
-                            <td className='text-right font-bold text-xs pl-2'>
-                              {calculateDecimal(rowBits)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                <div className='w-full md:w-1/4 p-3 rounded-lg'>
-                  <h2 className='text-sm font-bold mb-2'>All Results</h2>
-                  <ul className='space-y-1 text-xs'>
-                    {rows.map((rowBits, rowIndex) => (
-                      <li
-                        key={rowIndex}
-                        className='flex justify-between items-center border-b pb-1'
-                      >
-                        <span>{rowIndex + 1}</span>
-                        <span className='font-bold'>
-                          {calculateDecimal(rowBits)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </main>
-            </div>
-          </div>
-        );
+    <style>
+      /* Basic styling */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          Helvetica, Arial, sans-serif;
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
       }
 
-      const root = ReactDOM.createRoot(document.getElementById('root'));
-      root.render(<App />);
+      .container {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      h1 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin: 0;
+      }
+
+      .reset-btn {
+        background-color: #ef4444;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        border: none;
+        cursor: pointer;
+      }
+
+      .reset-btn:hover {
+        background-color: #dc2626;
+      }
+
+      .main-content {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .table-container {
+        overflow-x: auto;
+        margin-bottom: 20px;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+      }
+
+      th,
+      td {
+        padding: 1px;
+        text-align: center;
+        font-size: 12px;
+      }
+
+      th {
+        color: #6b7280;
+        width: 28px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .bit-cell {
+        border: 1px solid #e5e7eb;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .bit-on {
+        background-color: #3b82f6;
+        color: white;
+      }
+
+      .bit-off {
+        background-color: #f3f4f6;
+        color: black;
+      }
+
+      .row-number {
+        font-weight: 600;
+        text-align: center;
+        font-size: 12px;
+      }
+
+      .decimal-result {
+        text-align: right;
+        font-weight: bold;
+        font-size: 12px;
+        padding-left: 8px;
+      }
+
+      .results-panel {
+        padding: 12px;
+        border-radius: 8px;
+        background-color: #f9fafb;
+      }
+
+      .results-panel h2 {
+        font-size: 14px;
+        font-weight: bold;
+        margin-top: 0;
+        margin-bottom: 8px;
+      }
+
+      .results-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .result-item {
+        display: flex;
+        justify-content: space-between;
+        padding-bottom: 4px;
+        margin-bottom: 4px;
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 12px;
+      }
+
+      .result-value {
+        font-weight: bold;
+      }
+
+      @media (min-width: 768px) {
+        .container {
+          flex-direction: row;
+        }
+
+        .main-content {
+          flex-direction: row;
+          width: 100%;
+        }
+
+        .table-section {
+          width: 75%;
+        }
+
+        .results-panel {
+          width: 25%;
+          margin-left: 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="main-content">
+        <div class="table-section">
+          <div class="header">
+            <h1>Binary to Decimal</h1>
+            <button class="reset-btn" id="resetButton">Reset All</button>
+          </div>
+
+          <div class="table-container">
+            <table id="binaryTable">
+              <thead>
+                <tr>
+                  <th></th>
+                  <!-- Headers will be filled by JavaScript -->
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Rows will be filled by JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="results-panel">
+          <h2>All Results</h2>
+          <ul class="results-list" id="resultsList">
+            <!-- Results will be filled by JavaScript -->
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Initialize the application
+      document.addEventListener('DOMContentLoaded', function () {
+        // Create a 12x12 array of bits (all false/0)
+        const rows = Array(12)
+          .fill()
+          .map(() => Array(12).fill(false));
+
+        // Calculate bit values (2^11 down to 2^0)
+        const bitValues = Array(12)
+          .fill()
+          .map((_, i) => Math.pow(2, 11 - i));
+
+        // Calculate decimal value for a row of bits
+        function calculateDecimal(bits) {
+          return bits.reduce((sum, bit, index) => {
+            return sum + (bit ? Math.pow(2, 11 - index) : 0);
+          }, 0);
+        }
+
+        // Toggle a bit at a specific position
+        function toggleBit(rowIndex, bitIndex) {
+          rows[rowIndex][bitIndex] = !rows[rowIndex][bitIndex];
+          updateUI();
+        }
+
+        // Reset all bits to 0
+        function resetAll() {
+          for (let i = 0; i < 12; i++) {
+            for (let j = 0; j < 12; j++) {
+              rows[i][j] = false;
+            }
+          }
+          updateUI();
+        }
+
+        // Set up the table headers
+        function setupTableHeaders() {
+          const headerRow = document.querySelector('#binaryTable thead tr');
+
+          // Add empty first cell
+          const firstCell = document.createElement('th');
+          headerRow.appendChild(firstCell);
+
+          // Add bit value headers
+          bitValues.forEach((value) => {
+            const th = document.createElement('th');
+            th.textContent = value;
+            headerRow.appendChild(th);
+          });
+
+          // Add result header
+          const resultHeader = document.createElement('th');
+          headerRow.appendChild(resultHeader);
+        }
+
+        // Update the entire UI
+        function updateUI() {
+          const tbody = document.querySelector('#binaryTable tbody');
+          tbody.innerHTML = '';
+
+          // Create table rows
+          rows.forEach((rowBits, rowIndex) => {
+            const tr = document.createElement('tr');
+
+            // Add row number
+            const rowNumberCell = document.createElement('td');
+            rowNumberCell.textContent = rowIndex + 1;
+            rowNumberCell.className = 'row-number';
+            tr.appendChild(rowNumberCell);
+
+            // Add bit cells
+            rowBits.forEach((bit, bitIndex) => {
+              const td = document.createElement('td');
+
+              const bitCell = document.createElement('div');
+              bitCell.className = `bit-cell ${bit ? 'bit-on' : 'bit-off'}`;
+              bitCell.textContent = bit ? '1' : '0';
+
+              // Add click handler
+              bitCell.addEventListener('click', function () {
+                toggleBit(rowIndex, bitIndex);
+              });
+
+              td.appendChild(bitCell);
+              tr.appendChild(td);
+            });
+
+            // Add decimal result
+            const resultCell = document.createElement('td');
+            resultCell.className = 'decimal-result';
+            resultCell.textContent = calculateDecimal(rowBits);
+            tr.appendChild(resultCell);
+
+            tbody.appendChild(tr);
+          });
+
+          // Update results panel
+          const resultsList = document.getElementById('resultsList');
+          resultsList.innerHTML = '';
+
+          rows.forEach((rowBits, rowIndex) => {
+            const li = document.createElement('li');
+            li.className = 'result-item';
+
+            const rowNumber = document.createElement('span');
+            rowNumber.textContent = rowIndex + 1;
+
+            const resultValue = document.createElement('span');
+            resultValue.className = 'result-value';
+            resultValue.textContent = calculateDecimal(rowBits);
+
+            li.appendChild(rowNumber);
+            li.appendChild(resultValue);
+            resultsList.appendChild(li);
+          });
+        }
+
+        // Set up event listeners
+        document
+          .getElementById('resetButton')
+          .addEventListener('click', resetAll);
+
+        // Initialize the UI
+        setupTableHeaders();
+        updateUI();
+      });
     </script>
   </body>
 </html>

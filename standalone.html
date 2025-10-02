@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Binary to Decimal Converter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      function App() {
+        const [rows, setRows] = React.useState(
+          Array(12)
+            .fill(null)
+            .map(() => Array(12).fill(false))
+        );
+
+        // Calculate decimal value for a single row
+        const calculateDecimal = (bits) => {
+          return bits.reduce((acc, bit, index) => {
+            return acc + (bit ? Math.pow(2, 11 - index) : 0);
+          }, 0);
+        };
+
+        // Toggle bit at specific position in specific row
+        const toggleBit = (rowIndex, bitIndex) => {
+          const newRows = [...rows];
+          newRows[rowIndex] = [...newRows[rowIndex]];
+          newRows[rowIndex][bitIndex] = !newRows[rowIndex][bitIndex];
+          setRows(newRows);
+        };
+
+        // Reset all rows to zeros
+        const resetAll = () => {
+          setRows(
+            Array(12)
+              .fill(null)
+              .map(() => Array(12).fill(false))
+          );
+        };
+
+        // Generate bit value descriptors (2^11 to 2^0)
+        const bitValues = Array(12)
+          .fill(0)
+          .map((_, i) => Math.pow(2, 11 - i));
+
+        return (
+          <div className='font-sans min-h-screen lg:mx-16 pb-10 gap-8 sm:p-8'>
+            <div className='flex flex-col md:flex-row gap-'>
+              <main className='flex md:flex-row flex-col gap-2 w-full md:w-2/3'>
+                <div className='flex flex-col gap-1 w-full md:w-3/4 p-3 rounded-lg'>
+                  <div className='flex justify-between items-center mb-2'>
+                    <h1 className='text-lg font-bold'>Binary to Decimal</h1>
+                    <button
+                      onClick={resetAll}
+                      className='bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs'
+                    >
+                      Reset All
+                    </button>
+                  </div>
+
+                  <div className='overflow-x-auto'>
+                    <table className='w-full table-fixed border-collapse'>
+                      <thead>
+                        <tr>
+                          <th className='w-8 text-xs'></th>
+                          {bitValues.map((value, index) => (
+                            <th
+                              key={index}
+                              className='w-8 text-center text-xs text-gray-500 p-1'
+                              style={{ width: '28px' }}
+                            >
+                              <div className='truncate'>{value}</div>
+                            </th>
+                          ))}
+                          <th className='w-16 text-xs'></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rows.map((rowBits, rowIndex) => (
+                          <tr key={rowIndex} className='h-7'>
+                            <td className='text-center text-xs font-semibold'>
+                              {rowIndex + 1}
+                            </td>
+                            {rowBits.map((bit, bitIndex) => (
+                              <td
+                                key={bitIndex}
+                                className='p-[1px]'
+                                style={{ width: '28px' }}
+                              >
+                                <div
+                                  className={`border cursor-pointer flex items-center justify-center h-6 text-center text-xs ${bit ? 'bg-blue-500 text-white' : 'bg-gray-100 text-black'}`}
+                                  onClick={() => toggleBit(rowIndex, bitIndex)}
+                                >
+                                  {bit ? '1' : '0'}
+                                </div>
+                              </td>
+                            ))}
+                            <td className='text-right font-bold text-xs pl-2'>
+                              {calculateDecimal(rowBits)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className='w-full md:w-1/4 p-3 rounded-lg'>
+                  <h2 className='text-sm font-bold mb-2'>All Results</h2>
+                  <ul className='space-y-1 text-xs'>
+                    {rows.map((rowBits, rowIndex) => (
+                      <li
+                        key={rowIndex}
+                        className='flex justify-between items-center border-b pb-1'
+                      >
+                        <span>{rowIndex + 1}</span>
+                        <span className='font-bold'>
+                          {calculateDecimal(rowBits)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </main>
+            </div>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
